@@ -36,13 +36,20 @@ print('Initializing Chat')
 args = parse_args()
 cfg = Config(args)
 
+def load_json(path):
+    import json
+    with open(path, 'r') as f:
+        return json.load(f)
+
 ckpt_path = args.ckpt_path
 model_config = cfg.model_cfg
 model_config.device_8bit = args.gpu_id
-model_config.ckpt = ckpt_path
-model_config.llama_model = ckpt_path
+# model_config.ckpt = ckpt_path
+# model_config.llama_model = ckpt_path
+print("Loading model.")
 model_cls = registry.get_model_class(model_config.arch)
-model = model_cls.from_config(model_config).to('cuda:{}'.format(args.gpu_id))
+# model = model_cls.from_config(model_config).to('cuda:{}'.format(args.gpu_id))
+model = model_cls.from_pretrained("/work/piyush/pretrained_checkpoints/LargeModels/ST-LLM/ST_LLM_weight/conversation_weight")
 model.to(torch.float16)
 CONV_VISION = CONV_instructblip_Vicuna0
 
@@ -50,8 +57,8 @@ chat = Chat(model, device='cuda:{}'.format(args.gpu_id))
 print('Initialization Finished')
 
 chat_state = CONV_VISION.copy()
-video = 'example/BaoguoMa.mp4'
-prompt = 'Tell me why this video looks so funny?'
+video = '../TimeBound.v1/sample_data/folding_paper.mp4'
+prompt = 'What does this video show?'
 img_list = []
 
 chat.upload_video(video, chat_state, img_list, 64, text=prompt)
